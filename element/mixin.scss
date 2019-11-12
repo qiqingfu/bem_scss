@@ -1,0 +1,56 @@
+@import "function";
+
+
+/* BEM
+----------------- */
+@mixin b($block) {
+  $B: $namespace+ '-' + $block !global;
+
+  .#{$B} {
+    @content
+  }
+}
+
+
+@mixin e($element) {
+  $E: $element !global;
+  $selector: &;
+  $currentSelector: "";
+  @each $unit in $element {
+    $currentSelector: #{$currentSelector + "." + $B + $element-separator + $unit + ","}
+  }
+
+  // 判断父选择器是否符合规则
+  // 1. 包含修饰符 --
+  // 2. 包含 whenFlag, 使用 @include w(xxx) 选择器
+  // 3. 包含伪类选择器
+  @if hitAllSpecialNestRule($selector) {
+    @at-root {
+      #{$selector} {
+        #{$currentSelector} {
+          @content;
+        }
+      }
+    }
+  } @else {
+    @at-root {
+      #{$currentSelector} {
+        @content;
+      }
+    }
+  }
+}
+
+@mixin m($modifier) {
+  $selector: &;
+  $currentSelector: "";
+  @each $unit in $modifier {
+    $currentSelector: #{$currentSelector + & + $modifier-separator + $unit + ","}
+  }
+
+  @at-root {
+    #{$currentSelector} {
+      @content;
+    }
+  }
+}
